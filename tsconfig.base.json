@@ -1,0 +1,28 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2017", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "noUncheckedIndexedAccess": true,
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@replivent/db/schema": ["libs/db/schema/src/index.ts"],
+      "@replivent/db/seed": ["libs/db/seed/src/index.ts"],
+      "@replivent/domain/schema": ["libs/domain/schema/src/index.ts"],
+      "@replivent/trpc-client": ["libs/trpc-client/src/index.ts"],
+      "@replivent/trpc-server": ["libs/trpc-server/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}
