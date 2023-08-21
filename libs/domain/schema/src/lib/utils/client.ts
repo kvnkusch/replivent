@@ -1,4 +1,5 @@
 import { BaseMutationArgsSchemaMap, MutationArgsSchemaMap } from './base';
+import { z } from 'zod';
 
 export type ClientMutatorFn<Context, Args> = (
   context: Context,
@@ -11,5 +12,5 @@ export type ClientMutators<
   Mutation extends keyof MASM & string = keyof MASM & string,
   MutationArgsSchema extends BaseMutationArgsSchemaMap<Mutation> = BaseMutationArgsSchemaMap<Mutation>
 > = {
-  [M in Mutation]: ClientMutatorFn<Context, MASM[M]>;
+  [M in Mutation]: ClientMutatorFn<Context, z.infer<MASM[M]>>;
 };

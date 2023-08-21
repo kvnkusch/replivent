@@ -18,7 +18,7 @@ END $$;
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "launch_pad" (
 	"id" uuid PRIMARY KEY NOT NULL,
-	"created_at" timestamp DEFAULT now(),
+	"created_at" timestamp DEFAULT now() NOT NULL,
 	"last_modified_version" integer NOT NULL,
 	"deleted" boolean DEFAULT false,
 	"name" text NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS "launch_pad" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "location" (
 	"id" uuid PRIMARY KEY NOT NULL,
-	"created_at" timestamp DEFAULT now(),
+	"created_at" timestamp DEFAULT now() NOT NULL,
 	"last_modified_version" integer NOT NULL,
 	"deleted" boolean DEFAULT false,
 	"name" text NOT NULL
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS "location" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "location_compliance_rule" (
 	"id" uuid PRIMARY KEY NOT NULL,
-	"created_at" timestamp DEFAULT now(),
+	"created_at" timestamp DEFAULT now() NOT NULL,
 	"last_modified_version" integer NOT NULL,
 	"deleted" boolean DEFAULT false,
 	"location_id" uuid NOT NULL,
@@ -46,18 +46,19 @@ CREATE TABLE IF NOT EXISTS "location_compliance_rule" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "person" (
 	"id" uuid PRIMARY KEY NOT NULL,
-	"created_at" timestamp DEFAULT now(),
+	"created_at" timestamp DEFAULT now() NOT NULL,
 	"last_modified_version" integer NOT NULL,
 	"deleted" boolean DEFAULT false,
 	"first_name" text NOT NULL,
 	"last_name" text NOT NULL,
 	"birth_date" date,
-	"phone_number" text
+	"phone_number" text,
+	"email" text
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "person_health_check" (
 	"id" uuid PRIMARY KEY NOT NULL,
-	"created_at" timestamp DEFAULT now(),
+	"created_at" timestamp DEFAULT now() NOT NULL,
 	"last_modified_version" integer NOT NULL,
 	"deleted" boolean DEFAULT false,
 	"date" date NOT NULL,
@@ -68,7 +69,7 @@ CREATE TABLE IF NOT EXISTS "person_health_check" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "rocket" (
 	"id" uuid PRIMARY KEY NOT NULL,
-	"created_at" timestamp DEFAULT now(),
+	"created_at" timestamp DEFAULT now() NOT NULL,
 	"last_modified_version" integer NOT NULL,
 	"deleted" boolean DEFAULT false,
 	"model_id" uuid NOT NULL,
@@ -78,7 +79,7 @@ CREATE TABLE IF NOT EXISTS "rocket" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "rocket_model" (
 	"id" uuid PRIMARY KEY NOT NULL,
-	"created_at" timestamp DEFAULT now(),
+	"created_at" timestamp DEFAULT now() NOT NULL,
 	"last_modified_version" integer NOT NULL,
 	"deleted" boolean DEFAULT false,
 	"name" text NOT NULL,
@@ -88,7 +89,7 @@ CREATE TABLE IF NOT EXISTS "rocket_model" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "rocket_trip" (
 	"id" uuid PRIMARY KEY NOT NULL,
-	"created_at" timestamp DEFAULT now(),
+	"created_at" timestamp DEFAULT now() NOT NULL,
 	"last_modified_version" integer NOT NULL,
 	"deleted" boolean DEFAULT false,
 	"rocket_id" uuid NOT NULL,
@@ -101,7 +102,7 @@ CREATE TABLE IF NOT EXISTS "rocket_trip" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "rocket_trip_compliance_rule" (
 	"id" uuid PRIMARY KEY NOT NULL,
-	"created_at" timestamp DEFAULT now(),
+	"created_at" timestamp DEFAULT now() NOT NULL,
 	"last_modified_version" integer NOT NULL,
 	"deleted" boolean DEFAULT false,
 	"rocket_trip_id" uuid NOT NULL,
@@ -112,7 +113,7 @@ CREATE TABLE IF NOT EXISTS "rocket_trip_compliance_rule" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "rocket_trip_passenger" (
 	"id" uuid PRIMARY KEY NOT NULL,
-	"created_at" timestamp DEFAULT now(),
+	"created_at" timestamp DEFAULT now() NOT NULL,
 	"last_modified_version" integer NOT NULL,
 	"deleted" boolean DEFAULT false,
 	"rocket_trip_id" uuid NOT NULL,

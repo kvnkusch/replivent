@@ -56,7 +56,7 @@ export const person = pgTable('person', {
   lastName: text('last_name').notNull(),
   birthDate: date('birth_date'),
   phoneNumber: text('phone_number'),
-  email: text('phone_number'),
+  email: text('email'),
 });
 
 export const rocketTrip = pgTable('rocket_trip', {
@@ -65,13 +65,13 @@ export const rocketTrip = pgTable('rocket_trip', {
     .notNull()
     .references(() => rocket.id),
   start: timestamp('start', {
-    mode: 'date',
+    mode: 'string',
   }).notNull(),
   startLaunchPadId: uuid('start_launch_pad_id')
     .notNull()
     .references(() => launchPad.id),
   end: timestamp('end', {
-    mode: 'date',
+    mode: 'string',
   }).notNull(),
   endLaunchPadId: uuid('end_launch_pad_id')
     .notNull()

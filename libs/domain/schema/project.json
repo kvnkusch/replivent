@@ -1,17 +1,17 @@
 {
-  "name": "client-schema",
+  "name": "domain-schema",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/client/schema/src",
+  "sourceRoot": "libs/domain/schema/src",
   "projectType": "library",
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/client/schema",
-        "main": "libs/client/schema/src/index.ts",
-        "tsConfig": "libs/client/schema/tsconfig.lib.json",
-        "assets": ["libs/client/schema/*.md"],
+        "outputPath": "dist/libs/domain/schema",
+        "main": "libs/domain/schema/src/index.ts",
+        "tsConfig": "libs/domain/schema/tsconfig.lib.json",
+        "assets": ["libs/domain/schema/*.md"],
         "generatePackageJson": true
       }
     },
@@ -19,15 +19,15 @@
       "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/client/schema/**/*.ts"]
+        "lintFilePatterns": ["libs/domain/schema/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/vite:test",
-      "outputs": ["coverage/libs/client/schema"],
+      "outputs": ["coverage/libs/domain/schema"],
       "options": {
         "passWithNoTests": true,
-        "reportsDirectory": "../../../coverage/libs/client/schema"
+        "reportsDirectory": "../../../coverage/libs/domain/schema"
       }
     }
   },

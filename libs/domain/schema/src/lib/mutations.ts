@@ -1,38 +1,33 @@
 import { z } from 'zod';
 
-// Simple version to fallback to
-
-export const reserveTripSchema = z.object({
-  clientID: z.string(),
-  id: z.number(),
-  name: z.literal('reserveTrip'),
-  args: z.object({
-    personId: z.string(),
-    rocketTripId: z.string(),
-  }),
-});
-
-export const createTripSchema = z.object({
-  clientID: z.string(),
-  id: z.number(),
-  name: z.literal('createTrip'),
-  args: z.object({
-    rocketId: z.string(),
-    startLaunchPadId: z.string(),
-    endLaunchPadId: z.string(),
-  }),
-});
-
-// export const mutationsSchema = z.union([reserveTripSchema, createTripSchema]);
-
 export const mutationArgsSchemaMap = {
-  reserveTrip: z.object({
-    personId: z.string(),
-    rocketTripId: z.string(),
-  }),
   createTrip: z.object({
+    rocketTripId: z.string(),
     rocketId: z.string(),
     startLaunchPadId: z.string(),
     endLaunchPadId: z.string(),
+    start: z.string(),
+    end: z.string(),
+    passengerCapacity: z.number().nullable(),
+  }),
+  updateTrip: z.object({
+    rocketTripId: z.string(),
+    rocketId: z.string(),
+    startLaunchPadId: z.string(),
+    endLaunchPadId: z.string(),
+    start: z.string(),
+    end: z.string(),
+    passengerCapacity: z.number().nullable(),
+  }),
+  deleteTrip: z.object({
+    rocketTripId: z.string(),
+  }),
+  reserveTrip: z.object({
+    rocketTripPassengerId: z.string(),
+    personId: z.string(),
+    rocketTripId: z.string(),
+  }),
+  unreserveTrip: z.object({
+    rocketTripPassengerId: z.string(),
   }),
 };

@@ -15,7 +15,7 @@ import { formatISO } from 'date-fns';
 export const seedDatabase = async (db: NodePgDatabase) => {
   await db.transaction(async (tx) => {
     await tx.insert(replicacheSpace).values({
-      version: 0,
+      version: 1,
     });
 
     const [capeCanaveral, houston, theMoon, mars] = await tx
@@ -193,7 +193,7 @@ export const seedDatabase = async (db: NodePgDatabase) => {
       ...['Red', 'Gold', 'Blue'].flatMap((squadron) =>
         ['Leader', 'One', 'Three', 'Five'].map((callsign) => ({
           ...commonSeedData(),
-          modelId: starship!.id,
+          modelId: xWing!.id,
           serialNumber: `${squadron} ${callsign}`,
         }))
       ),
@@ -239,6 +239,6 @@ export const seedDatabase = async (db: NodePgDatabase) => {
 function commonSeedData() {
   return {
     id: v4(),
-    lastModifiedVersion: 0,
+    lastModifiedVersion: 1,
   };
 }

@@ -1,5 +1,4 @@
 import fastify from 'fastify';
-import cookie from '@fastify/cookie';
 import { TrpcContext, trpcRouter } from '@replivent/trpc-server';
 import {
   CreateFastifyContextOptions,
@@ -26,12 +25,6 @@ server.register(cors, {
   },
   // TODO: Set allowed origin values
   // credentials: true,
-});
-
-// TODO: https://github.com/fastify/fastify-cookie#securing-the-cookie
-server.register(cookie, {
-  // secret: 'my-secret', // for cookies signature
-  // parseOptions: {}, // options for parsing cookies
 });
 
 const createContext = async ({

@@ -20,7 +20,12 @@ export type ServerMutators<
   Mutation extends keyof MASM & string = keyof MASM & string,
   MutationArgsSchema extends BaseMutationArgsSchemaMap<Mutation> = BaseMutationArgsSchemaMap<Mutation>
 > = {
-  [M in Mutation]: ServerMutatorFn<Context, Result, MASM[M], AddtlArgs>;
+  [M in Mutation]: ServerMutatorFn<
+    Context,
+    Result,
+    z.infer<MASM[M]>,
+    AddtlArgs
+  >;
 };
 
 type ProcessMutation<
@@ -49,6 +54,7 @@ export function createMutate<
   baseMutationSchema: BaseMutationSchema,
   mutators: ServerMutators<Context, Result, AddtlArgs, MASM>
 ): ProcessMutation<Context, Result, AddtlArgs, MASM> {
+  // TODO: Test that this schema validation actually works
   const allCompleteSchema = [] as unknown as [
     z.ZodTypeAny,
     z.ZodTypeAny,

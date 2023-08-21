@@ -15,17 +15,17 @@ import { PatchOperation } from '../types';
 import { gt } from 'drizzle-orm';
 import { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 
-const tables: BaseTable[] = [
-  location,
-  launchPad,
-  locationComplianceRule,
-  rocket,
-  rocketModel,
-  rocketTrip,
-  rocketTripComplianceRule,
-  rocketTripPassenger,
-  person,
-  personHealthCheck,
+const tablesAndMetadata: { table: BaseTable; modelName: string }[] = [
+  { table: location, modelName: 'Location' },
+  { table: launchPad, modelName: 'LaunchPad' },
+  { table: locationComplianceRule, modelName: 'LocationComplianceRule' },
+  { table: rocket, modelName: 'Rocket' },
+  { table: rocketModel, modelName: 'RocketModel' },
+  { table: rocketTrip, modelName: 'RocketTrip' },
+  { table: rocketTripComplianceRule, modelName: 'RocketTripComplianceRule' },
+  { table: rocketTripPassenger, modelName: 'RocketTripPassenger' },
+  { table: person, modelName: 'Person' },
+  { table: personHealthCheck, modelName: 'PersonHealthCheck' },
 ];
 
 type BaseTable = PgTableWithColumns<{
@@ -88,7 +88,8 @@ type BaseTable = PgTableWithColumns<{
 async function getChanged(
   tx: PgTransaction,
   sinceVersion: number,
-  table: BaseTable
+  table: BaseTable,
+  modelName: string
 ): Promise<PatchOperation[]> {
   const results = await tx
     .select()
@@ -96,7 +97,7 @@ async function getChanged(
     .where(gt(table.lastModifiedVersion, sinceVersion));
 
   return results.map(({ id, deleted, lastModifiedVersion, ...value }) => {
-    const key = `${table._.name}/${id}`;
+    const key = `${modelName}/${id}`;
     if (deleted) {
       return {
         op: 'del',
@@ -117,7 +118,9 @@ export async function getAllChanges(
   sinceVersion: number
 ): Promise<PatchOperation[]> {
   const allResults = await Promise.all(
-    tables.map((table) => getChanged(tx, sinceVersion, table))
+    tablesAndMetadata.map(({ table, modelName }) =>
+      getChanged(tx, sinceVersion, table, modelName)
+    )
   );
   return allResults.flat();
 }

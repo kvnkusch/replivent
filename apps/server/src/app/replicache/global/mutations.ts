@@ -5,6 +5,8 @@ import {
   mutationArgsSchemaMap,
   ServerMutators,
 } from '@replivent/domain/schema';
+import { rocketTrip, rocketTripPassenger } from '@replivent/db/schema';
+import { eq } from 'drizzle-orm';
 
 type Context = { tx: PgTransaction };
 type Result = void;
@@ -16,8 +18,86 @@ export const mutators: ServerMutators<
   AddtlArgs,
   typeof mutationArgsSchemaMap
 > = {
-  createTrip: async ({ tx }, args) => {},
-  reserveTrip: async ({ tx }, args) => {},
+  createTrip: async (
+    { tx },
+    {
+      rocketId,
+      rocketTripId,
+      startLaunchPadId,
+      endLaunchPadId,
+      start,
+      end,
+      passengerCapacity,
+    },
+    { nextVersion }
+  ) => {
+    await tx.insert(rocketTrip).values({
+      id: rocketTripId,
+      rocketId,
+      start,
+      end,
+      startLaunchPadId,
+      endLaunchPadId,
+      lastModifiedVersion: nextVersion,
+      passengerCapacity,
+    });
+  },
+  updateTrip: async (
+    { tx },
+    {
+      rocketId,
+      rocketTripId,
+      startLaunchPadId,
+      endLaunchPadId,
+      start,
+      end,
+      passengerCapacity,
+    },
+    { nextVersion }
+  ) => {
+    await tx
+      .update(rocketTrip)
+      .set({
+        rocketId,
+        start,
+        end,
+        startLaunchPadId,
+        endLaunchPadId,
+        lastModifiedVersion: nextVersion,
+        passengerCapacity,
+      })
+      .where(eq(rocketTrip.id, rocketTripId));
+  },
+  deleteTrip: async ({ tx }, { rocketTripId }, { nextVersion }) => {
+    await tx
+      .update(rocketTrip)
+      .set({
+        deleted: true,
+        lastModifiedVersion: nextVersion,
+      })
+      .where(eq(rocketTrip.id, rocketTripId));
+  },
+  reserveTrip: async (
+    { tx },
+    { rocketTripId, rocketTripPassengerId, personId },
+    { nextVersion }
+  ) => {
+    await tx.insert(rocketTripPassenger).values({
+      id: rocketTripPassengerId,
+      rocketTripId,
+      personId,
+      lastModifiedVersion: nextVersion,
+    });
+  },
+  unreserveTrip: async ({ tx }, { rocketTripPassengerId }, { nextVersion }) => {
+    await tx
+      .update(rocketTripPassenger)
+      .set({
+        deleted: true,
+        lastModifiedVersion: nextVersion,
+      })
+      .where(eq(rocketTripPassenger.id, rocketTripPassengerId));
+  },
 };
 
 export const mutate = createMutate(

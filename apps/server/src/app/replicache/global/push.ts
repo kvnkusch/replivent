@@ -14,13 +14,13 @@ import {
   updateClient,
 } from './utils';
 import { mutate } from './mutations';
-import { cookieSchema } from './schema';
+import { getAuth } from '../../auth';
 
 const mutationSchema = z.object({
   clientID: z.string(),
   id: z.number(),
   name: z.string(),
-  args: z.object({}),
+  args: z.any(),
 });
 
 const pushRequestSchema = z.object({
@@ -37,9 +37,16 @@ export const handlePush: RouteHandler = async (req, reply) => {
   });
   const db = drizzle(pool);
 
+  let userId: string;
+  const auth = getAuth(req);
+  if (!auth.success) {
+    reply.status(401).send('Unauthenticated');
+    return;
+  }
+  userId = auth.data;
+
   const t0 = Date.now();
   try {
-    const userId = cookieSchema.parse(req.cookies).userId;
     const push = pushRequestSchema.parse(req.body);
 
     // Iterate each mutation in the push.
@@ -57,7 +64,7 @@ export const handlePush: RouteHandler = async (req, reply) => {
         );
       } catch (e) {
         const errorMessage = e instanceof Error ? e.message : 'Unknown Error';
-        console.error('Caught error from mutation', mutation, errorMessage);
+        console.error('Caught error from mutation', mutation, e);
         await db.transaction(
           (tx) =>
             processMutation(
@@ -83,6 +90,7 @@ export const handlePush: RouteHandler = async (req, reply) => {
     // TODO: Send poke to relevant clients
     // await sendPoke();
   } catch (e) {
+    console.error(e);
     // TODO: Additional error cases here
     reply.status(500).send('Internal Server Error');
   }
@@ -112,6 +120,7 @@ const processMutation = async (
   );
 
   const nextMutationId = client.lastMutationId + 1;
+  // Skip mutation if it has already been processed
   if (mutation.id < nextMutationId) {
     return;
   }
@@ -120,18 +129,7 @@ const processMutation = async (
   }
 
   if (error === null) {
-    return mutate(mutation, { tx }, { nextVersion });
-    // const result = mutationsSchema.safeParse(mutation);
-    // if (result.success) {
-    //   switch (result.data.name) {
-    //     case 'createTrip':
-    //       return createTrip(result.data, tx, nextVersion);
-    //     case 'reserveTrip':
-    //       return reserveTrip(result.data, tx, nextVersion);
-    //   }
-    // } else {
-    //   throw result.error;
-    // }
+    await mutate(mutation, { tx }, { nextVersion });
   } else {
     // TODO: You can store state here in the database to return to clients to
     // provide additional info about errors.

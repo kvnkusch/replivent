@@ -22,5 +22,5 @@ export type MutationArgsSchemaMap<
 
 export type BaseMutation = {
   name: string;
-  args: any;
+  args?: any;
 };
