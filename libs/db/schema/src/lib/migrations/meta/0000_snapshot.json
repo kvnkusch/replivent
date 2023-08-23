@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "597e5662-28eb-49a8-86af-0e5318106dd3",
+  "id": "981a3d6d-152b-4645-9c60-201839275e28",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "launch_pad": {
@@ -707,8 +707,64 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "replicache_client": {
-      "name": "replicache_client",
+    "sync_action": {
+      "name": "sync_action",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "model_name": {
+          "name": "model_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "model_id": {
+          "name": "model_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "sync_action_type",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "model_index": {
+          "name": "model_index",
+          "columns": [
+            "model_name",
+            "model_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "global_replicache_client": {
+      "name": "global_replicache_client",
       "schema": "",
       "columns": {
         "id": {
@@ -745,10 +801,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "replicache_client_client_group_id_replicache_client_group_id_fk": {
-          "name": "replicache_client_client_group_id_replicache_client_group_id_fk",
-          "tableFrom": "replicache_client",
-          "tableTo": "replicache_client_group",
+        "global_replicache_client_client_group_id_global_replicache_client_group_id_fk": {
+          "name": "global_replicache_client_client_group_id_global_replicache_client_group_id_fk",
+          "tableFrom": "global_replicache_client",
+          "tableTo": "global_replicache_client_group",
           "columnsFrom": [
             "client_group_id"
           ],
@@ -762,8 +818,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "replicache_client_group": {
-      "name": "replicache_client_group",
+    "global_replicache_client_group": {
+      "name": "global_replicache_client_group",
       "schema": "",
       "columns": {
         "id": {
@@ -791,8 +847,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "replicache_space": {
-      "name": "replicache_space",
+    "global_replicache_space": {
+      "name": "global_replicache_space",
       "schema": "",
       "columns": {
         "id": {
@@ -805,6 +861,90 @@
         "version": {
           "name": "version",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "sync_action_replicache_client": {
+      "name": "sync_action_replicache_client",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "client_group_id": {
+          "name": "client_group_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_mutation_id": {
+          "name": "last_mutation_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_sync_id": {
+          "name": "last_sync_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sync_action_replicache_client_client_group_id_sync_action_replicache_client_group_id_fk": {
+          "name": "sync_action_replicache_client_client_group_id_sync_action_replicache_client_group_id_fk",
+          "tableFrom": "sync_action_replicache_client",
+          "tableTo": "sync_action_replicache_client_group",
+          "columnsFrom": [
+            "client_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "sync_action_replicache_client_group": {
+      "name": "sync_action_replicache_client_group",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         }
@@ -843,6 +983,14 @@
         "gt": "gt",
         "le": "le",
         "lt": "lt"
+      }
+    },
+    "sync_action_type": {
+      "name": "sync_action_type",
+      "values": {
+        "insert": "insert",
+        "update": "update",
+        "delete": "delete"
       }
     }
   },

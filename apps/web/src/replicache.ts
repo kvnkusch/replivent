@@ -3,6 +3,7 @@ import { environment } from './environment';
 import {
   mutationArgsSchemaMap,
   ReplicacheMutatorDefs,
+  rocketTripSchema,
 } from '@replivent/domain/schema';
 import { v4 } from 'uuid';
 
@@ -22,8 +23,10 @@ export const rep = new Replicache<
 >({
   name: `${getUserId()}`,
   licenseKey: environment.VITE_REPLICACHE_LICENSE_KEY,
-  pushURL: `${environment.VITE_API_URL}/replicache-push`,
-  pullURL: `${environment.VITE_API_URL}/replicache-pull`,
+  // pushURL: `${environment.VITE_API_URL}/replicache/global/push`,
+  // pullURL: `${environment.VITE_API_URL}/replicache/global/pull`,
+  pushURL: `${environment.VITE_API_URL}/replicache/sync-action/push`,
+  pullURL: `${environment.VITE_API_URL}/replicache/sync-action/pull`,
   pullInterval: 10000,
   mutators: {
     createTrip: async (tx, { rocketTripId, ...args }) => {
@@ -32,8 +35,13 @@ export const rep = new Replicache<
       });
     },
     updateTrip: async (tx, { rocketTripId, ...args }) => {
-      // TODO: This is the same as, is that ok? Probably could be different on the server w/ extra validation?
+      const raw = await tx.get(`RocketTrip/${rocketTripId}`);
+      const parsed = rocketTripSchema.safeParse(raw);
+      if (!parsed.success) {
+        return;
+      }
       await tx.put(`RocketTrip/${rocketTripId}`, {
+        ...parsed.data,
         ...args,
       });
     },

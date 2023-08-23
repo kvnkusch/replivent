@@ -12,9 +12,6 @@ export const mutationArgsSchemaMap = {
   }),
   updateTrip: z.object({
     rocketTripId: z.string(),
-    rocketId: z.string(),
-    startLaunchPadId: z.string(),
-    endLaunchPadId: z.string(),
     start: z.string(),
     end: z.string(),
     passengerCapacity: z.number().nullable(),

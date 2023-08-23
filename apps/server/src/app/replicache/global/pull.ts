@@ -5,7 +5,7 @@ import { Pool } from 'pg';
 import { z } from 'zod';
 import { getClientGroup, getGlobalVersion } from './utils';
 import { PgTransaction } from '../../types';
-import { replicacheClient } from '@replivent/db/schema';
+import { globalReplicacheClient } from '@replivent/db/schema';
 import { and, eq, gt } from 'drizzle-orm';
 import { PullResponseOK } from '../types';
 import { getAllChanges } from './diff';
@@ -65,18 +65,18 @@ export const handlePull: RouteHandler = async (req, reply) => {
   }
 };
 
-export async function getLastMutationIdChanges(
+async function getLastMutationIdChanges(
   tx: PgTransaction,
   clientGroupId: string,
   sinceVersion: number
 ): Promise<Record<string, number>> {
   const clients = await tx
     .select()
-    .from(replicacheClient)
+    .from(globalReplicacheClient)
     .where(
       and(
-        eq(replicacheClient.clientGroupId, clientGroupId),
-        gt(replicacheClient.lastModifiedVersion, sinceVersion)
+        eq(globalReplicacheClient.clientGroupId, clientGroupId),
+        gt(globalReplicacheClient.lastModifiedVersion, sinceVersion)
       )
     );
 

@@ -1,15 +1,20 @@
-export type PatchOperation =
-  | {
-      op: 'put';
-      key: string;
-      // TODO: Make this generic to the model type?
-      value: any;
-    }
-  | { op: 'del'; key: string }
-  | { op: 'clear' };
+import type { PullResponseOKV1 } from 'replicache';
+import { z } from 'zod';
 
-export type PullResponseOK<Cookie> = {
+export type PullResponseOK<Cookie> = Omit<PullResponseOKV1, 'cookie'> & {
   cookie: Cookie;
-  lastMutationIDChanges: Record<string, number>;
-  patch: PatchOperation[];
 };
+
+export const mutationSchema = z.object({
+  clientID: z.string(),
+  id: z.number(),
+  name: z.string(),
+  args: z.any(),
+});
+
+export const pushRequestSchema = z.object({
+  pushVersion: z.literal(1),
+  profileID: z.string(),
+  clientGroupID: z.string(),
+  mutations: z.array(mutationSchema),
+});

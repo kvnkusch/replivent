@@ -16,6 +16,12 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "sync_action_type" AS ENUM('insert', 'update', 'delete');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "launch_pad" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -120,7 +126,16 @@ CREATE TABLE IF NOT EXISTS "rocket_trip_passenger" (
 	"person_id" uuid NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "replicache_client" (
+CREATE TABLE IF NOT EXISTS "sync_action" (
+	"id" bigserial PRIMARY KEY NOT NULL,
+	"timestamp" timestamp DEFAULT now(),
+	"model_name" text NOT NULL,
+	"model_id" uuid NOT NULL,
+	"type" "sync_action_type" NOT NULL,
+	"data" jsonb NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "global_replicache_client" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now(),
 	"client_group_id" uuid NOT NULL,
@@ -128,17 +143,32 @@ CREATE TABLE IF NOT EXISTS "replicache_client" (
 	"last_modified_version" integer NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "replicache_client_group" (
+CREATE TABLE IF NOT EXISTS "global_replicache_client_group" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now(),
 	"user_id" uuid NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "replicache_space" (
+CREATE TABLE IF NOT EXISTS "global_replicache_space" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"version" integer NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "sync_action_replicache_client" (
+	"id" uuid PRIMARY KEY NOT NULL,
+	"created_at" timestamp DEFAULT now(),
+	"client_group_id" uuid NOT NULL,
+	"last_mutation_id" integer NOT NULL,
+	"last_sync_id" integer NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "sync_action_replicache_client_group" (
+	"id" uuid PRIMARY KEY NOT NULL,
+	"created_at" timestamp DEFAULT now(),
+	"user_id" uuid NOT NULL
+);
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "model_index" ON "sync_action" ("model_name","model_id");--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "launch_pad" ADD CONSTRAINT "launch_pad_location_id_location_id_fk" FOREIGN KEY ("location_id") REFERENCES "location"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
@@ -200,7 +230,13 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "replicache_client" ADD CONSTRAINT "replicache_client_client_group_id_replicache_client_group_id_fk" FOREIGN KEY ("client_group_id") REFERENCES "replicache_client_group"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "global_replicache_client" ADD CONSTRAINT "global_replicache_client_client_group_id_global_replicache_client_group_id_fk" FOREIGN KEY ("client_group_id") REFERENCES "global_replicache_client_group"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "sync_action_replicache_client" ADD CONSTRAINT "sync_action_replicache_client_client_group_id_sync_action_replicache_client_group_id_fk" FOREIGN KEY ("client_group_id") REFERENCES "sync_action_replicache_client_group"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

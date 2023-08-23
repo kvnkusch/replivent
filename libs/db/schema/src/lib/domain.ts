@@ -14,12 +14,9 @@ const tableBase = {
   id: uuid('id').primaryKey(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 
-  // Global Strategy
+  // Global Strategy (ignore in the events version)
   lastModifiedVersion: integer('last_modified_version').notNull(),
   deleted: boolean('deleted').default(false),
-
-  // Row-version Strategy
-  // ???
 };
 
 export const location = pgTable('location', {

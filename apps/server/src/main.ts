@@ -10,8 +10,12 @@ import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 
 // Replicache Global Strategy
-import { handlePush } from './app/replicache/global/push';
-import { handlePull } from './app/replicache/global/pull';
+import { handlePush as handleGlobalPush } from './app/replicache/global/push';
+import { handlePull as handleGlobalPull } from './app/replicache/global/pull';
+
+// Replicache Global Strategy
+import { handlePush as handleSyncActionPush } from './app/replicache/syncAction/push';
+import { handlePull as handleSyncActionPull } from './app/replicache/syncAction/pull';
 
 const server = fastify({
   maxParamLength: 5000,
@@ -45,9 +49,13 @@ server.register(fastifyTRPCPlugin, {
   trpcOptions: { router: trpcRouter, createContext },
 });
 
-server.post('/replicache-pull', handlePull);
+server.post('/replicache/global/pull', handleGlobalPull);
 
-server.post('/replicache-push', handlePush);
+server.post('/replicache/global/push', handleGlobalPush);
+
+server.post('/replicache/sync-action/pull', handleSyncActionPull);
+
+server.post('/replicache/sync-action/push', handleSyncActionPush);
 
 (async () => {
   try {

@@ -57,7 +57,7 @@ export function HomePage() {
     []
   );
 
-  const handleCreateTrip = async () => {
+  const handleCreateTrip = () => {
     const rocketId = rocketIds[Math.floor(Math.random() * rocketIds.length)];
     const startLaunchPadId =
       launchPadIds[Math.floor(Math.random() * launchPadIds.length)];
@@ -71,7 +71,7 @@ export function HomePage() {
     const startDate = new Date();
     const endDate = addDays(startDate, Math.floor(Math.random() * 6) + 1);
 
-    await rep.mutate.createTrip({
+    rep.mutate.createTrip({
       rocketTripId: v4(),
       rocketId,
       startLaunchPadId,
@@ -85,7 +85,9 @@ export function HomePage() {
   return (
     <div className="container mx-auto h-full overflow-hidden p-4">
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-3xl">Rocket Trips</p>
+        <p className="text-3xl">
+          Rocket Trips (RT: {rocketTripIds.length}, R: {rocketIds.length})
+        </p>
         <button
           className="rounded bg-blue-500 px-4 py-2 text-white"
           onClick={handleCreateTrip}
@@ -170,8 +172,20 @@ const RocketTripTableRow = ({ rocketTripId }: { rocketTripId: string }) => {
     return <tr></tr>;
   }
 
+  const handleUpdateTrip = () => {
+    const startDate = new Date();
+    const endDate = addDays(startDate, Math.floor(Math.random() * 6) + 1);
+
+    rep.mutate.updateTrip({
+      rocketTripId,
+      start: startDate.toISOString(),
+      end: endDate.toISOString(),
+      passengerCapacity: null,
+    });
+  };
+
   return (
-    <tr>
+    <tr onClick={() => handleUpdateTrip()}>
       <td className="border px-4 py-2">
         {data.rocketModel.name} ({data.rocket.serialNumber})
       </td>

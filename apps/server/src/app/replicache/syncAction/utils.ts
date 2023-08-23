@@ -1,52 +1,33 @@
 import {
-  globalReplicacheClient,
-  globalReplicacheClientGroup,
-  globalReplicacheSpace,
+  syncActionReplicacheClient,
+  syncActionReplicacheClientGroup,
 } from '@replivent/db/schema';
 import { PgTransaction } from '../../types';
 import { InferModel, eq } from 'drizzle-orm';
 
-export async function getGlobalVersion(tx: PgTransaction): Promise<number> {
-  const [space] = await tx.select().from(globalReplicacheSpace);
-  if (!space) {
-    throw new Error('No "globalReplicache_space" found');
-  }
-  return space.version;
-}
-
-export async function setGlobalVersion(
-  tx: PgTransaction,
-  version: number
-): Promise<void> {
-  await tx.update(globalReplicacheSpace).set({
-    version,
-  });
-}
-
 export async function getClient(
   tx: PgTransaction,
   clientId: string
-): Promise<InferModel<typeof globalReplicacheClient> | undefined> {
+): Promise<InferModel<typeof syncActionReplicacheClient> | undefined> {
   const [client] = await tx
     .select()
-    .from(globalReplicacheClient)
-    .where(eq(globalReplicacheClient.id, clientId));
+    .from(syncActionReplicacheClient)
+    .where(eq(syncActionReplicacheClient.id, clientId));
   return client;
 }
 
 export async function createClient(
   tx: PgTransaction,
   clientId: string,
-  clientGroupId: string,
-  lastModifiedVersion: number
-): Promise<InferModel<typeof globalReplicacheClient>> {
+  clientGroupId: string
+): Promise<InferModel<typeof syncActionReplicacheClient>> {
   const [client] = await tx
-    .insert(globalReplicacheClient)
+    .insert(syncActionReplicacheClient)
     .values({
       id: clientId,
       clientGroupId,
-      lastModifiedVersion,
       lastMutationId: 0,
+      lastSyncId: 0,
     })
     .returning();
   if (!client) {
@@ -59,15 +40,15 @@ export async function updateClient(
   tx: PgTransaction,
   clientId: string,
   lastMutationId: number,
-  lastModifiedVersion: number
+  lastSyncId: number
 ): Promise<void> {
   await tx
-    .update(globalReplicacheClient)
+    .update(syncActionReplicacheClient)
     .set({
-      lastModifiedVersion,
       lastMutationId,
+      lastSyncId,
     })
-    .where(eq(globalReplicacheClient.id, clientId))
+    .where(eq(syncActionReplicacheClient.id, clientId))
     .returning();
 }
 
@@ -75,11 +56,11 @@ export async function getClientGroup(
   tx: PgTransaction,
   clientGroupId: string,
   userId: string
-): Promise<InferModel<typeof globalReplicacheClientGroup> | undefined> {
+): Promise<InferModel<typeof syncActionReplicacheClientGroup> | undefined> {
   const [clientGroup] = await tx
     .select()
-    .from(globalReplicacheClientGroup)
-    .where(eq(globalReplicacheClientGroup.id, clientGroupId));
+    .from(syncActionReplicacheClientGroup)
+    .where(eq(syncActionReplicacheClientGroup.id, clientGroupId));
 
   if (clientGroup && clientGroup.userId !== userId) {
     // TODO: Better error, e.g. Auth?
@@ -93,9 +74,9 @@ export async function createClientGroup(
   tx: PgTransaction,
   clientGroupId: string,
   userId: string
-): Promise<InferModel<typeof globalReplicacheClientGroup>> {
+): Promise<InferModel<typeof syncActionReplicacheClientGroup>> {
   const [insertResult] = await tx
-    .insert(globalReplicacheClientGroup)
+    .insert(syncActionReplicacheClientGroup)
     .values({
       id: clientGroupId,
       userId,

@@ -6,11 +6,13 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "db:clear": "docker compose down --volumes",
+    "db:clear": "docker compose down -v",
+    "db:up": "docker compose up -d",
     "db:shell": "docker exec -ti replivent-postgres-1 psql replivent -U postgres",
     "db:migrations:generate": "drizzle-kit generate:pg --config=./drizzle.config.ts",
     "db:migrations:run": "ts-node ./scripts/db/run-migrations.ts",
-    "db:seed": "ts-node -r tsconfig-paths/register --project ./scripts/tsconfig.json ./scripts/db/seed-dev-data.ts"
+    "db:seed": "ts-node -r tsconfig-paths/register --project ./scripts/tsconfig.json ./scripts/db/seed-dev-data.ts",
+    "db:reset": "yarn db:clear && yarn db:up && yarn db:migrations:run && yarn db:seed"
   },
   "private": true,
   "devDependencies": {
@@ -69,6 +71,7 @@
     "@trpc/server": "^10.8.1",
     "date-fns": "^2.30.0",
     "drizzle-orm": "^0.28.2",
+    "drizzle-zod": "^0.5.0",
     "fastify": "^4.19.2",
     "pg": "^8.11.0",
     "react": "18.2.0",

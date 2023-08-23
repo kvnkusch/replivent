@@ -1,3 +1,4 @@
 export * from './domain';
-export * from './events';
-export * from './replicache';
+export * from './syncAction';
+export * from './replicache/global';
+export * from './replicache/syncAction';

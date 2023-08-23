@@ -44,25 +44,14 @@ export const mutators: ServerMutators<
   },
   updateTrip: async (
     { tx },
-    {
-      rocketId,
-      rocketTripId,
-      startLaunchPadId,
-      endLaunchPadId,
-      start,
-      end,
-      passengerCapacity,
-    },
+    { rocketTripId, start, end, passengerCapacity },
     { nextVersion }
   ) => {
     await tx
       .update(rocketTrip)
       .set({
-        rocketId,
         start,
         end,
-        startLaunchPadId,
-        endLaunchPadId,
         lastModifiedVersion: nextVersion,
         passengerCapacity,
       })

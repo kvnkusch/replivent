@@ -9,13 +9,11 @@ import {
   createClientGroup,
   getClient,
   getClientGroup,
-  getGlobalVersion,
-  setGlobalVersion,
   updateClient,
 } from './utils';
-import { mutate } from './mutations';
 import { getAuth } from '../../auth';
 import { mutationSchema, pushRequestSchema } from '../types';
+import { mutate } from './mutations';
 
 export const handlePush: RouteHandler = async (req, reply) => {
   // TODO: Should this be a different object for every request, or no?
@@ -95,14 +93,11 @@ const processMutation = async (
 ) => {
   // TODO: Should this use "FOR UPDATE"?
   const clientGroup = await ensureClientGroup(tx, clientGroupId, userId);
-  const prevVersion = await getGlobalVersion(tx);
-  const nextVersion = prevVersion + 1;
 
   const client = await ensureClient(
     tx,
     mutation.clientID,
     clientGroup.id,
-    nextVersion,
     mutation.id
   );
 
@@ -116,7 +111,8 @@ const processMutation = async (
   }
 
   if (error === null) {
-    await mutate(mutation, { tx }, { nextVersion });
+    const { syncId } = await mutate(mutation, { tx }, undefined);
+    await updateClient(tx, mutation.clientID, nextMutationId, syncId);
   } else {
     // TODO: You can store state here in the database to return to clients to
     // provide additional info about errors.
@@ -125,12 +121,13 @@ const processMutation = async (
       JSON.stringify(mutation),
       error
     );
+    await updateClient(
+      tx,
+      mutation.clientID,
+      nextMutationId,
+      client.lastSyncId
+    );
   }
-
-  await Promise.all([
-    updateClient(tx, mutation.clientID, nextMutationId, nextVersion),
-    setGlobalVersion(tx, nextVersion),
-  ]);
 };
 
 async function ensureClientGroup(
@@ -150,7 +147,6 @@ async function ensureClient(
   tx: PgTransaction,
   clientId: string,
   clientGroupID: string,
-  lastModifiedVersion: number,
   mutationId: number
 ) {
   const client = await getClient(tx, clientId);
@@ -167,5 +163,5 @@ async function ensureClient(
     );
   }
 
-  return createClient(tx, clientId, clientGroupID, lastModifiedVersion);
+  return createClient(tx, clientId, clientGroupID);
 }
